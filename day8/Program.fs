@@ -17,8 +17,8 @@ let noteVisibleTrees (previousTrees: Tree list) (currentTree: Tree) =
 
 let viewingDistance (previousTrees: Tree list) (currentTree: Tree) =
     match previousTrees |> List.tryFindIndexBack (fun x -> x.Height >= currentTree.Height) with
-    | None -> [ { currentTree with Attribute = previousTrees |> List.length } ]
-    | Some index -> [ { currentTree with Attribute = (previousTrees |> List.length) - index } ]
+    | None -> previousTrees @ [ { currentTree with Attribute = previousTrees |> List.length } ]
+    | Some index -> previousTrees @ [ { currentTree with Attribute = (previousTrees |> List.length) - index } ]
 
 let processWest processFunction forest : Tree list list =
     forest |> List.map (List.fold processFunction [])
@@ -57,7 +57,7 @@ let part1 forest =
             visibleFromEast
             visibleFromNorth
             visibleFromSouth
-        |> List.map (fun line -> line |> List.filter (fun tree -> tree.Attribute = 1) |> List.length)
+        |> List.map (fun line -> line |> List.filter (fun tree -> tree.Attribute > 0) |> List.length)
         |> List.sum
 
     printfn "%d" visibleTreesCount
@@ -67,8 +67,6 @@ let part2 forest =
     let scenicScoreNorth = forest |> processNorth viewingDistance
     let scenicScoreEast = forest |> processEast viewingDistance
     let scenicScoreSouth = forest |> processSouth viewingDistance
-    
-    scenicScoreSouth |> List.iter (printfn "%0A")
 
     let highestScenicScore =
         scenicScoreWest
@@ -95,5 +93,5 @@ let main args =
         )
 
     part1 forest
-    // part2 forest
+    part2 forest
     0
